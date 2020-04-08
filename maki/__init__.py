@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from maki.utils import config
 from pathlib import Path
+import maki.database
 
 __version__ = "0.0.1"
 
@@ -20,6 +21,7 @@ bot = commands.AutoShardedBot(command_prefix=get_prefix)
 
 @bot.event
 async def on_ready():
+    await database.setup()
     print(f'''Logged in as {bot.user}..
         Serving {len(bot.users)} users in {len(bot.guilds)} guilds
         Invite: {invite_link.format(bot.user.id)}
