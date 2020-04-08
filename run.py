@@ -1,0 +1,3 @@
+import maki
+
+maki.run()
