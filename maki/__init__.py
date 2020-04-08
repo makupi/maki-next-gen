@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
-import maki.utils
+from maki.utils import config
 from pathlib import Path
 
 __version__ = "0.0.1"
-
-config = utils.Config("config.json")
 
 invite_link = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot"
 
