@@ -1,18 +1,23 @@
+from pathlib import Path
+
 import discord
 from discord.ext import commands
-from maki.utils import config
-from pathlib import Path
+
 import maki.database
+from maki.database.models import Guild
+from maki.utils import config
 
 __version__ = "0.0.1"
 
 invite_link = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot"
 
 
-def get_prefix(_bot, message):
+async def get_prefix(_bot, message):
     prefix = config.prefix
     if not isinstance(message.channel, discord.DMChannel):
-        pass  # query guild-prefix
+        guild = await Guild.get(message.guild.id)
+        if guild.prefix is not None:
+            prefix = guild.prefix
     return commands.when_mentioned_or(prefix)(_bot, message)
 
 

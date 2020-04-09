@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from maki.database.models import Guild
 
 
@@ -19,6 +20,7 @@ class Settings(commands.Cog):
             await Guild.create(id=ctx.guild.id, prefix=new_prefix)
         else:
             await guild.update(prefix=new_prefix).apply()
+        await ctx.channel.send(f'Changed prefix to {new_prefix}')
 
 
 def setup(bot):
