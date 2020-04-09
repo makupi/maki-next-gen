@@ -15,12 +15,16 @@ class Settings(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def prefix(self, ctx, new_prefix: str):
+        embed = discord.Embed(title='Prefix changed')
         guild = await Guild.get(ctx.guild.id)
         if guild is None:
             await Guild.create(id=ctx.guild.id, prefix=new_prefix)
         else:
+            embed.add_field(name='From', value=guild.prefix)
             await guild.update(prefix=new_prefix).apply()
-        await ctx.channel.send(f'Changed prefix to {new_prefix}')
+
+        embed.add_field(name='To', value=new_prefix)
+        await ctx.channel.send(embed=embed)
 
 
 def setup(bot):
