@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from maki.database.models import Guild
+from maki.utils import create_embed
 
 
 class Settings(commands.Cog):

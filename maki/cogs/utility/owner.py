@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 import maki.database as db
-from maki.utils import config
+from maki.utils import config, create_embed
 
 
 def fix_cog_path(cog):
@@ -32,7 +32,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         old_prefix = config.prefix
         config.prefix = new_prefix
         config.store()
-        embed = discord.Embed(title='Changing default prefix')
+        embed = await create_embed(title='Changing default prefix')
         embed.add_field(name='From', value=old_prefix)
         embed.add_field(name='To', value=new_prefix)
         await ctx.send(embed=embed)
@@ -40,13 +40,14 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     async def shutdown(self, ctx):
         await db.shutdown()
-        await ctx.send(embed=discord.Embed(title='Shutting down..'))
+        embed = await create_embed(title='Shutting down..')
+        await ctx.send(embed=embed)
 
         sys.exit()
 
     @commands.command()
     async def load(self, ctx, cog: str):
-        embed = discord.Embed(title=f'Load Extension {cog}')
+        embed = await create_embed(title=f'Load Extension {cog}')
         try:
             self.bot.load_extension(fix_cog_path(cog))
         except (commands.ExtensionAlreadyLoaded, commands.ExtensionNotFound) as ex:
@@ -57,7 +58,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.command()
     async def unload(self, ctx, cog: str):
-        embed = discord.Embed(title=f'Unload Extension {cog}')
+        embed = await create_embed(title=f'Unload Extension {cog}')
         try:
             self.bot.unload_extension(fix_cog_path(cog))
         except commands.ExtensionNotLoaded as ex:
@@ -68,7 +69,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.command()
     async def reload(self, ctx, cog: str):
-        embed = discord.Embed(title=f'Reload Extension {cog}')
+        embed = await create_embed(title=f'Reload Extension {cog}')
         try:
             self.bot.reload_extension(fix_cog_path(cog))
         except (commands.ExtensionNotLoaded, commands.ExtensionNotFound) as ex:
@@ -82,11 +83,12 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         msg = ''
         for cog in self.bot.cogs:
             msg += f"- {cog}\n"
-        await ctx.send(embed=discord.Embed(title='Loaded Extensions', description=msg))
+        embed = await create_embed(title='Loaded Extensions', description=msg)
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def exec(self, ctx, *command: str):
-        embed = discord.Embed(title=' '.join(command))
+        embed = await create_embed(title=' '.join(command))
         try:
             with subprocess.Popen(
                     [*list(command)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
