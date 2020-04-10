@@ -16,7 +16,7 @@ class Settings(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def prefix(self, ctx, new_prefix: str):
-        embed = discord.Embed(title='Prefix changed')
+        embed = discord.Embed(description='Prefix changed')
         guild = await Guild.get(ctx.guild.id)
         if guild is None:
             await Guild.create(id=ctx.guild.id, prefix=new_prefix)
