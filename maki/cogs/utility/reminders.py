@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 from datetime import datetime, timedelta
@@ -10,6 +11,8 @@ from maki.database.models import Reminder
 from maki.utils import create_embed, dm_test
 
 UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
+
+DELETE_EMOTE = "🗑️"
 
 
 def convert_to_delta(_time):
@@ -44,31 +47,34 @@ async def store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm
 async def reminder_creation(reminder, delta=None):
     embed = await create_embed()
     if delta is None:
-        embed.set_footer(text="React with 🗑️ to delete")
         embed.add_field(name="Reminding you about", value=reminder)
     else:
         embed.add_field(name=f'Reminder due in {delta}', value=reminder)
     url = re.search(r"(?P<url>https?://[^\s]+)", reminder)
     if url:
         embed.set_image(url=url.group("url"))
+    embed.set_footer(text=f"React with {DELETE_EMOTE}️ to delete")
     return embed
 
 
 class Reminders(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.check_reminders.add_exception_type(GinoException)
+        self.bot.loop.create_task(self.check_reminders())
+        self.reaction_queue = dict()
 
-    def cog_unload(self):
-        self.check_reminders.cancel()
-
-    @tasks.loop(seconds=1.0)
     async def check_reminders(self):
         await self.bot.wait_until_ready()
-        due_reminders = await Reminder.query.where(Reminder.due_time > datetime.now()).gino.all()
-        for reminder in due_reminders:
-            await self.send_reminder(reminder)
-            await reminder.delete()
+        while True:
+            try:
+                due_reminders = await Reminder.query.where(Reminder.due_time < datetime.now()).gino.all()
+            except GinoException as ex:
+                print(f'GinoException during Reminder.query {ex}')
+            else:
+                for reminder in due_reminders:
+                    await self.send_reminder(reminder)
+                    await reminder.delete()
+            await asyncio.sleep(1)
 
     async def send_reminder(self, reminder):
         embed = await reminder_creation(reminder.reminder)
@@ -79,19 +85,35 @@ class Reminders(commands.Cog):
             guild = self.bot.get_guild(reminder.guild_id)
             channel = guild.get_channel(reminder.channel_id)
             msg = await channel.send(f'{user.mention}', embed=embed)
+        await self.add_delete_logic(msg, user)
+
+    async def add_delete_logic(self, msg, user):
+        def check(_reaction, _user):
+            return _reaction.message.id == msg.id and _user.id == user.id and _reaction.emoji == DELETE_EMOTE
+
+        self.reaction_queue[msg.id] = check
+        await msg.add_reaction(DELETE_EMOTE)
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        check = self.reaction_queue.get(reaction.message.id, None)
+        if check is not None:
+            if user == self.bot.user:
+                await self.bot.wait_for("reaction_add", check=check)
+                await reaction.message.delete()
+                del self.reaction_queue[reaction.message.id]
 
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'{type(self).__name__} Cog ready.')
-        self.check_reminders.cancel()
-        self.check_reminders.start()
 
     @commands.command()
     async def remindme(self, ctx, _time, *reminder: str):
         delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
         await store_reminder(delta, reminder, user_id, channel_id, guild_id)
         embed = await reminder_creation(reminder, delta=delta)
-        await ctx.send(embed=embed)
+        msg = await ctx.send(embed=embed)
+        await self.add_delete_logic(msg, ctx.author)
 
     @commands.command()
     async def dmme(self, ctx, _time, *reminder: str):
@@ -99,12 +121,13 @@ class Reminders(commands.Cog):
             delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
             await store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=True)
             embed = await reminder_creation(reminder, delta=delta)
-            await ctx.send(embed=embed)
+            msg = await ctx.send(embed=embed)
         else:
             embed = await create_embed()
             embed.description = "It seems like I'm not allowed to send you a direct message. \
                                 Please follow the steps below to enable direct messages."
-            await ctx.send(embed=embed)
+            msg = await ctx.send(embed=embed)
+        await self.add_delete_logic(msg, ctx.author)
 
 
 def setup(bot):
