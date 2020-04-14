@@ -109,6 +109,14 @@ class Reminders(commands.Cog):
 
     @commands.command()
     async def remindme(self, ctx, _time, *reminder: str):
+        """: Reminder in the same channel after time expired
+
+                Format: .remindme 1h30m finish this essay
+
+                Ping the author after the time has expired with the given message
+                <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
+                        e.g. 1w2d5h10m45s
+                """
         delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
         await store_reminder(delta, reminder, user_id, channel_id, guild_id)
         embed = await reminder_creation(reminder, delta=delta)
@@ -117,6 +125,14 @@ class Reminders(commands.Cog):
 
     @commands.command()
     async def dmme(self, ctx, _time, *reminder: str):
+        """: Reminder via direct message after time expired
+
+                Format: .dmme 1h30m finish this essay
+
+                DM the author after the time has expired with the given message
+                <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
+                        e.g. 1w2d5h10m45s
+                """
         if await dm_test(ctx.author):
             delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
             await store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=True)
