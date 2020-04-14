@@ -5,7 +5,7 @@ class Reminder(db.Model):
     __tablename__ = "reminders"
 
     id = db.Column(db.Integer, primary_key=True)
-    due_time = db.Column(db.Time)
+    due_time = db.Column(db.TIMESTAMP)
     reminder = db.Column(db.String)
     user_id = db.Column(db.BIGINT)
     channel_id = db.Column(db.BIGINT)
