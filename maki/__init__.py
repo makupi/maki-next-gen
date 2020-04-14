@@ -15,13 +15,23 @@ invite_link = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bo
 async def get_prefix(_bot, message):
     prefix = config.prefix
     if not isinstance(message.channel, discord.DMChannel):
-        guild = await Guild.get(message.guild.id)
-        if guild.prefix is not None:
-            prefix = guild.prefix
+        guild_data = _bot.guild_data.get(message.guild.id, None)
+        if guild_data is not None:
+            prefix = guild_data.get("prefix", prefix)
     return commands.when_mentioned_or(prefix)(_bot, message)
 
 
 bot = commands.AutoShardedBot(command_prefix=get_prefix)
+
+
+async def preload_guild_data():
+    guilds = await Guild.query.gino.all()
+    d = dict()
+    for guild in guilds:
+        d[guild.id] = {
+            "prefix": guild.prefix
+        }
+    return d
 
 
 @bot.event
@@ -31,6 +41,7 @@ async def on_ready():
         Serving {len(bot.users)} users in {len(bot.guilds)} guilds
         Invite: {invite_link.format(bot.user.id)}
     ''')
+    bot.guild_data = await preload_guild_data()
 
 
 def extensions():
