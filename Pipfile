@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 discord-py = "*"
+gino = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.8"

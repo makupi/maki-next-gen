@@ -4,6 +4,7 @@ import os
 default_config = {
     "prefix": ";",
     "token": "",
+    "database": "postgresql://localhost/maki"
 }
 
 
@@ -18,3 +19,13 @@ class Config:
             self.config = json.load(file)
         self.prefix = self.config.get("prefix", default_config.get("prefix"))
         self.token = self.config.get("token", default_config.get("token"))
+        self.database = self.config.get("database", default_config.get("database"))
+
+    def store(self):
+        c = {
+            "prefix": self.prefix,
+            "token": self.token,
+            "database": self.database
+        }
+        with open(self.filename, "w") as file:
+            json.dump(c, file)
