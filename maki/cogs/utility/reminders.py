@@ -120,8 +120,9 @@ class Reminders(commands.Cog):
         delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
         await store_reminder(delta, reminder, user_id, channel_id, guild_id)
         embed = await reminder_creation(reminder, delta=delta)
-        msg = await ctx.send(embed=embed)
+        msg = await ctx.send(f'{ctx.author.mention}', embed=embed)
         await self.add_delete_logic(msg, ctx.author)
+        await ctx.message.delete()
 
     @commands.command()
     async def dmme(self, ctx, _time, *reminder: str):
@@ -137,13 +138,14 @@ class Reminders(commands.Cog):
             delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
             await store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=True)
             embed = await reminder_creation(reminder, delta=delta)
-            msg = await ctx.send(embed=embed)
+            msg = await ctx.send(f'{ctx.author.mention}', embed=embed)
         else:
             embed = await create_embed()
             embed.description = "It seems like I'm not allowed to send you a direct message. \
                                 Please follow the steps below to enable direct messages."
             msg = await ctx.send(embed=embed)
         await self.add_delete_logic(msg, ctx.author)
+        await ctx.message.delete()
 
 
 def setup(bot):
