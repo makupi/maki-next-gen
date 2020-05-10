@@ -17,6 +17,7 @@ class Config:
         self.token = self.config.get("token", default_config.get("token"))
         self.database = self.config.get("database", default_config.get("database"))
         self.owm_key = self.config.get("owmKey")
+        self.omdb_key = self.config.get("omdbKey")
 
     def store(self):
         c = {"prefix": self.prefix, "token": self.token, "database": self.database}
