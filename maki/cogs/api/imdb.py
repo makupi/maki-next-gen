@@ -48,11 +48,11 @@ class IMDb(commands.Cog):
             for emote in movies.keys():
                 await msg.add_reaction(emote)
 
-            def check(reaction, user):
+            def check(r, u):
                 return (
-                    reaction.message.id == msg.id
-                    and user == ctx.message.author
-                    and reaction.emoji in movies
+                    r.message.id == msg.id
+                    and u == ctx.message.author
+                    and r.emoji in movies
                 )
 
             reaction, user = await self.bot.wait_for(
@@ -65,8 +65,30 @@ class IMDb(commands.Cog):
             movie_id = search[0].get("imdbID")
         if movie_id:
             url = f"{API}?i={movie_id}"
-            data = await self._fetch_json(url)
-            print(data)
+            movie = await self._fetch_json(url)
+        embed.title = movie.get("Title")
+        embed.url = f"https://www.imdb.com/title/{movie_id}"
+        plot = movie.get("Plot")
+        if plot != "N/A":
+            embed.description = plot
+        poster = movie.get("Poster")
+        if poster != "N/A":
+            embed.set_thumbnail(url=poster)
+        embed.add_field(name="Year", value=movie.get("Year"))
+        embed.add_field(name="Genre", value=movie.get("Genre"))
+        embed.add_field(name="Actors", value=movie.get("Actors"))
+        embed.add_field(name="Director", value=movie.get("Director"))
+        awards = movie.get("Awards")
+        if awards != "N/A":
+            embed.add_field(name="Awards", value=awards)
+        embed.add_field(name="IMDb Rating", value=movie.get("imdbRating"))
+        ratings = movie.get("Ratings", list())
+        for rating in ratings:
+            embed.add_field(name=rating.get("Source"), value=rating.get("Value"))
+        if msg is None:
+            await ctx.send(embed=embed)
+        else:
+            await msg.edit(embed=embed)
 
 
 def setup(bot):
