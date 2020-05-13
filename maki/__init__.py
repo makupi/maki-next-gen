@@ -1,9 +1,8 @@
 from pathlib import Path
 
 import discord
-from discord.ext import commands
-
 import maki.database
+from discord.ext import commands
 from maki.database.models import Guild
 from maki.utils import config
 
@@ -28,19 +27,20 @@ async def preload_guild_data():
     guilds = await Guild.query.gino.all()
     d = dict()
     for guild in guilds:
-        d[guild.id] = {
-            "prefix": guild.prefix
-        }
+        if guild.prefix:
+            d[guild.id] = {"prefix": guild.prefix}
     return d
 
 
 @bot.event
 async def on_ready():
     await database.setup()
-    print(f'''Logged in as {bot.user}..
+    print(
+        f"""Logged in as {bot.user}..
         Serving {len(bot.users)} users in {len(bot.guilds)} guilds
         Invite: {invite_link.format(bot.user.id)}
-    ''')
+    """
+    )
     bot.guild_data = await preload_guild_data()
 
 
@@ -55,7 +55,7 @@ def load_extensions(_bot):
         try:
             _bot.load_extension(ext)
         except Exception as ex:
-            print(f'Failed to load extension {ext} - exception: {ex}')
+            print(f"Failed to load extension {ext} - exception: {ex}")
 
 
 def run():

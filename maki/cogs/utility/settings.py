@@ -1,4 +1,5 @@
 import discord
+import maki.database as db
 from discord.ext import commands
 from maki.database.models import Guild
 
@@ -10,6 +11,15 @@ class Settings(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{type(self).__name__} Cog ready.")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        _ = await db.query_guild(guild.id)
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        if not member.bot:
+            _ = await db.query_user(user_id=member.id, guild_id=member.guild.id)
 
     @commands.has_permissions(manage_guild=True)
     @commands.command()
