@@ -7,4 +7,3 @@ class User(db.Model):
     id = db.Column(db.BIGINT, primary_key=True)
     guild_id = db.Column(db.BIGINT, primary_key=True)
     birthday = db.Column(db.Date)
-
