@@ -1,13 +1,11 @@
 import asyncio
 import re
-import time
 from datetime import datetime, timedelta
 
-import discord
-from discord.ext import commands, tasks
-
+import maki.database as db
+from discord.ext import commands
 from gino import GinoException
-from maki.database.models import Reminder
+from maki.database.models import Reminder, User
 from maki.utils import create_embed, dm_test
 
 UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
@@ -40,8 +38,14 @@ def parse_reminder(ctx, _time, reminder):
 
 async def store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=False):
     due_time = datetime.now() + delta
-    await Reminder.create(due_time=due_time, reminder=reminder, user_id=user_id, channel_id=channel_id,
-                          guild_id=guild_id, send_dm=send_dm)
+    user = await db.query_user(user_id=user_id, guild_id=guild_id)
+    await Reminder.create(
+        due_time=due_time,
+        reminder=reminder,
+        user_id=user.id,
+        channel_id=channel_id,
+        send_dm=send_dm,
+    )
 
 
 async def reminder_creation(reminder, delta=None):
@@ -49,7 +53,7 @@ async def reminder_creation(reminder, delta=None):
     if delta is None:
         embed.add_field(name="Reminding you about", value=reminder)
     else:
-        embed.add_field(name=f'Reminder due in {delta}', value=reminder)
+        embed.add_field(name=f"Reminder due in {delta}", value=reminder)
     url = re.search(r"(?P<url>https?://[^\s]+)", reminder)
     if url:
         embed.set_image(url=url.group("url"))
@@ -67,9 +71,11 @@ class Reminders(commands.Cog):
         await self.bot.wait_until_ready()
         while True:
             try:
-                due_reminders = await Reminder.query.where(Reminder.due_time < datetime.now()).gino.all()
+                due_reminders = await Reminder.query.where(
+                    Reminder.due_time < datetime.now()
+                ).gino.all()
             except GinoException as ex:
-                print(f'GinoException during Reminder.query {ex}')
+                print(f"GinoException during Reminder.query {ex}")
             else:
                 for reminder in due_reminders:
                     await self.send_reminder(reminder)
@@ -78,18 +84,22 @@ class Reminders(commands.Cog):
 
     async def send_reminder(self, reminder):
         embed = await reminder_creation(reminder.reminder)
-        user = self.bot.get_user(reminder.user_id)
+        _user = await User.get(reminder.user_id)
+        user = self.bot.get_user(_user.user_id)
         if reminder.send_dm:
             msg = await user.send(embed=embed)
         else:
-            guild = self.bot.get_guild(reminder.guild_id)
-            channel = guild.get_channel(reminder.channel_id)
-            msg = await channel.send(f'{user.mention}', embed=embed)
+            channel = self.bot.get_channel(reminder.channel_id)
+            msg = await channel.send(f"{user.mention}", embed=embed)
         await self.add_delete_logic(msg, user)
 
     async def add_delete_logic(self, msg, user):
         def check(_reaction, _user):
-            return _reaction.message.id == msg.id and _user.id == user.id and _reaction.emoji == DELETE_EMOTE
+            return (
+                _reaction.message.id == msg.id
+                and _user.id == user.id
+                and _reaction.emoji == DELETE_EMOTE
+            )
 
         self.reaction_queue[msg.id] = check
         await msg.add_reaction(DELETE_EMOTE)
@@ -99,13 +109,17 @@ class Reminders(commands.Cog):
         check = self.reaction_queue.get(reaction.message.id, None)
         if check is not None:
             if user == self.bot.user:
-                await self.bot.wait_for("reaction_add", check=check)
-                await reaction.message.delete()
+                try:
+                    await self.bot.wait_for("reaction_add", check=check, timeout=600)
+                except asyncio.TimeoutError:
+                    await reaction.message.clear_reactions()
+                else:
+                    await reaction.message.delete()
                 del self.reaction_queue[reaction.message.id]
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'{type(self).__name__} Cog ready.')
+        print(f"{type(self).__name__} Cog ready.")
 
     @commands.command()
     async def remindme(self, ctx, _time, *reminder: str):
@@ -117,10 +131,12 @@ class Reminders(commands.Cog):
                 <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
                         e.g. 1w2d5h10m45s
                 """
-        delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
+        delta, reminder, user_id, channel_id, guild_id = parse_reminder(
+            ctx, _time, reminder
+        )
         await store_reminder(delta, reminder, user_id, channel_id, guild_id)
         embed = await reminder_creation(reminder, delta=delta)
-        msg = await ctx.send(f'{ctx.author.mention}', embed=embed)
+        msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
         await self.add_delete_logic(msg, ctx.author)
         await ctx.message.delete()
 
@@ -135,10 +151,14 @@ class Reminders(commands.Cog):
                         e.g. 1w2d5h10m45s
                 """
         if await dm_test(ctx.author):
-            delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
-            await store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=True)
+            delta, reminder, user_id, channel_id, guild_id = parse_reminder(
+                ctx, _time, reminder
+            )
+            await store_reminder(
+                delta, reminder, user_id, channel_id, guild_id, send_dm=True
+            )
             embed = await reminder_creation(reminder, delta=delta)
-            msg = await ctx.send(f'{ctx.author.mention}', embed=embed)
+            msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
         else:
             embed = await create_embed()
             embed.description = "It seems like I'm not allowed to send you a direct message. \
