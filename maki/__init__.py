@@ -42,6 +42,7 @@ async def on_ready():
     """
     )
     bot.guild_data = await preload_guild_data()
+    await bot.change_presence(activity=discord.Game(f"maki rework v{__version__}"))
 
 
 def extensions():
