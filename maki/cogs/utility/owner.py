@@ -2,9 +2,9 @@ import subprocess
 import sys
 
 import discord
-from discord.ext import commands
-
 import maki.database as db
+from discord.ext import commands
+from maki.database.models import Guild
 from maki.utils import config, create_embed
 
 
@@ -102,6 +102,22 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         except Exception as ex:
             embed.add_field(name="Exception", value=str(ex))
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def setup(self, ctx):
+        for guild in ctx.bot.guilds:
+            _ = await db.query_guild(guild.id)
+            for member in guild.members:
+                if not member.bot:
+                    user = await db.query_user(user_id=member.id, guild_id=guild.id)
+                    print(
+                        f"guild <{guild.id}> creating user {member.id} with id {user.id}"
+                    )
+
+    @commands.command()
+    async def test(self, ctx):
+        user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
+        print(user.id)
 
 
 def setup(bot):

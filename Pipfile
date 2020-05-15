@@ -11,6 +11,7 @@ discord-py = "*"
 gino = "*"
 alembic = "*"
 pint = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.8"

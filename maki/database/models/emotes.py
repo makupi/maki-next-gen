@@ -5,7 +5,7 @@ class Emote(db.Model):
     __tablename__ = "emotes"
 
     # id = db.Column(db.Integer, primary_key=True)
-    guild_id = db.Column(db.BIGINT)
+    guild_id = db.Column(db.BIGINT, db.ForeignKey("guilds.id"))
     name = db.Column(db.String)
     count = db.Column(db.Integer)
 

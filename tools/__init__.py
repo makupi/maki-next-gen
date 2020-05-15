@@ -1,13 +1,9 @@
 import asyncio
 
+import maki.database as db
 from maki.database.models import Emote, Guild, Reminder
 
-from .database_transfer import (
-    from_emotes_data,
-    from_reminder_data,
-    guild_config_transfer,
-    setup,
-)
+from .database_transfer import from_emotes_data, from_reminder_data, guild_config_transfer, setup
 
 
 async def transfer_database():
@@ -20,15 +16,15 @@ async def transfer_database():
 
 async def transfer_guilds():
     print(f"transferring {len(guild_config_transfer)} guilds..")
-    await Guild.delete.gino.all()
-    await asyncio.sleep(5)
+    # await Guild.delete.gino.all()
+    # await asyncio.sleep(5)
     for k, v in guild_config_transfer.items():
         print(f"transfering {k}:{v} .. ")
-        # exists = await Guild.get(k)
-        # if exists is None:
-        await Guild.create(id=k, prefix=v)
-        # else:
-        #     await exists.update(prefix=v).apply()
+        guild = await Guild.get(k)
+        if guild is None:
+            await Guild.create(id=k, prefix=v)
+        else:
+            await guild.update(prefix=v).apply()
 
 
 async def transfer_emotes():
@@ -64,12 +60,12 @@ async def transfer_reminders():
         channel_id = reminder.get("channelId")
         guild_id = reminder.get("guildId")
         send_dm = reminder.get("sendDM")
+        user = await db.query_user(user_id=user_id, guild_id=guild_id)
         await Reminder.create(
             due_time=due_time,
             reminder=note,
-            user_id=user_id,
+            user_id=user.id,
             channel_id=channel_id,
-            guild_id=guild_id,
             send_dm=send_dm,
         )
 
