@@ -3,7 +3,6 @@ from collections import Counter
 
 import discord
 from discord.ext import commands
-
 from maki.database.models import Emote
 from maki.utils import create_embed
 
