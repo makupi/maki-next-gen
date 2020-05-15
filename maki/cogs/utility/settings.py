@@ -30,7 +30,9 @@ class Settings(commands.Cog):
             await Guild.create(id=ctx.guild.id, prefix=new_prefix)
             self.bot.guild_data[ctx.guild.id] = {"prefix": new_prefix}
         else:
-            embed.add_field(name="From", value=guild.prefix)
+            embed.add_field(
+                name="From", value=("Not set" if guild.prefix is None else guild.prefix)
+            )
             await guild.update(prefix=new_prefix).apply()
             self.bot.guild_data[ctx.guild.id].update({"prefix": new_prefix})
 
