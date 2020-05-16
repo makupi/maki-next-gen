@@ -16,7 +16,9 @@ async def get_prefix(_bot, message):
     if not isinstance(message.channel, discord.DMChannel):
         guild_data = _bot.guild_data.get(message.guild.id, None)
         if guild_data is not None:
-            prefix = guild_data.get("prefix", prefix)
+            _p = guild_data.get("prefix")
+            if _p is not None:
+                prefix = _p
     return commands.when_mentioned_or(prefix)(_bot, message)
 
 
