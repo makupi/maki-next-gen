@@ -16,11 +16,16 @@ async def get_prefix(_bot, message):
     if not isinstance(message.channel, discord.DMChannel):
         guild_data = _bot.guild_data.get(message.guild.id, None)
         if guild_data is not None:
-            prefix = guild_data.get("prefix", prefix)
+            _p = guild_data.get("prefix")
+            if _p is not None:
+                prefix = _p
     return commands.when_mentioned_or(prefix)(_bot, message)
 
 
 bot = commands.AutoShardedBot(command_prefix=get_prefix)
+bot.version = __version__
+bot.active_commands = 0
+bot.total_commands = 0
 
 
 async def preload_guild_data():
@@ -34,15 +39,27 @@ async def preload_guild_data():
 
 @bot.event
 async def on_ready():
+    bot.invite = invite_link.format(bot.user.id)
     await database.setup()
     print(
         f"""Logged in as {bot.user}..
         Serving {len(bot.users)} users in {len(bot.guilds)} guilds
-        Invite: {invite_link.format(bot.user.id)}
+        Invite: {bot.invite}
     """
     )
     bot.guild_data = await preload_guild_data()
     await bot.change_presence(activity=discord.Game(f"maki rework v{__version__}"))
+
+
+@bot.before_invoke
+async def before_invoke(ctx):
+    ctx.bot.total_commands += 1
+    ctx.bot.active_commands += 1
+
+
+@bot.after_invoke
+async def after_invoke(ctx):
+    ctx.bot.active_commands -= 1
 
 
 def extensions():
