@@ -87,6 +87,22 @@ class Utility(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["socials", "invite", "support"])
+    async def links(self, ctx):
+        embed = await create_embed()
+        embed.description = (
+            f"[Invite]({self.bot.invite}) | "
+            f"[Vote](https://top.gg/bot/431485759304892416/vote) | "
+            f"[Support](https://discord.gg/vU7pDXB) | "
+            f"[Ko-fi](https://ko-fi.com/makubob) | "
+            f"[Github](https://github.com/makupi) | "
+            f"[Twitter](https://twitter.com/makubob)"
+        )
+        embed.set_footer(
+            text="Thank you for using maki <3", icon_url=self.bot.user.avatar_url
+        )
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
