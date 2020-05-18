@@ -12,6 +12,8 @@ UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"
 
 DELETE_EMOTE = "🗑️"
 
+REGEX_MENTIONS = r"(@everyone|@here|<(?:@!?|@&|#)\d+>)"
+
 
 def convert_to_delta(_time):
     _unit = {}
@@ -37,7 +39,7 @@ def parse_reminder(ctx, _time, reminder):
 
 
 async def store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=False):
-    due_time = datetime.now() + delta
+    due_time = datetime.now().replace(microsecond=0) + delta
     user = await db.query_user(user_id=user_id, guild_id=guild_id)
     await Reminder.create(
         due_time=due_time,
@@ -166,6 +168,21 @@ class Reminders(commands.Cog):
             msg = await ctx.send(embed=embed)
         await self.add_delete_logic(msg, ctx.author)
         await ctx.message.delete()
+
+    @commands.command()
+    async def reminders(self, ctx):
+        user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
+        _reminders = await Reminder.query.where(Reminder.user_id == user.id).gino.all()
+        embed = await create_embed()
+        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        for reminder in _reminders:
+            due = reminder.due_time - datetime.now().replace(microsecond=0)
+            embed.add_field(
+                name=f"#{reminder.id} due in {due}",
+                value=reminder.reminder,
+                inline=False,
+            )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
