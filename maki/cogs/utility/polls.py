@@ -1,6 +1,6 @@
 import asyncio
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -90,13 +90,18 @@ class Polls(commands.Cog):
             desc += f"{emote} {option}\n"
             options_dict[emote] = option
         embed.description = desc
+        due_time = datetime.now().replace(microsecond=0) + parse_timedelta(time)
+        embed.timestamp = datetime.utcnow().replace(microsecond=0) + parse_timedelta(
+            time
+        )
+        embed.set_footer(text="Due ")
         msg = await ctx.send(embed=embed)
         for emote in options_dict.keys():
             await msg.add_reaction(emote)
         user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
         await Poll.create(
             creator_id=user.id,
-            due_time=datetime.now().replace(microsecond=0) + parse_timedelta(time),
+            due_time=due_time,
             channel_id=ctx.channel.id,
             message_id=msg.id,
             options=options,

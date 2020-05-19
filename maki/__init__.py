@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import discord
-import maki.database
 from discord.ext import commands
+
+import maki.database
 from maki.database.models import Guild
 from maki.utils import config
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 invite_link = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=8192"
 
