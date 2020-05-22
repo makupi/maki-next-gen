@@ -2,8 +2,9 @@ import asyncio
 import re
 from datetime import datetime, timedelta
 
-import maki.database as db
 from discord.ext import commands
+
+import maki.database as db
 from gino import GinoException
 from maki.database.models import Reminder, User
 from maki.utils import create_embed, dm_test
@@ -172,16 +173,41 @@ class Reminders(commands.Cog):
     @commands.command()
     async def reminders(self, ctx):
         user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
-        _reminders = await Reminder.query.where(Reminder.user_id == user.id).gino.all()
+        reminders = await Reminder.query.where(Reminder.user_id == user.id).gino.all()
         embed = await create_embed()
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
-        for reminder in _reminders:
+        if len(reminders) == 0:
+            embed.description = "You don't have any active reminders right now!"
+        for reminder in reminders:
             due = reminder.due_time - datetime.now().replace(microsecond=0)
             embed.add_field(
                 name=f"#{reminder.id} due in {due}",
                 value=reminder.reminder,
                 inline=False,
             )
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name="cancel-reminder",
+        aliases=["cancel_reminder", "cancelReminder", "cancelreminder"],
+    )
+    async def cancel_reminder(self, ctx, number: int):
+        user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
+        reminder = await Reminder.get(number)
+        embed = await create_embed()
+        if reminder is None:
+            embed.description = f"Reminder **#{number}** not found!"
+        else:
+            due = reminder.due_time - datetime.now().replace(microsecond=0)
+            if user.id == reminder.user_id:
+                embed.description = (
+                    f"Cancelled reminder **#{reminder.id}** with {due} left."
+                )
+                await reminder.delete()
+            else:
+                embed.description = (
+                    f"You are not the creator of this reminder. You cannot delete it!"
+                )
         await ctx.send(embed=embed)
 
 
