@@ -7,7 +7,7 @@ import maki.database
 from maki.database.models import Guild
 from maki.utils import config
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 invite_link = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=8192"
 
