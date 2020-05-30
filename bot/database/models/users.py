@@ -11,6 +11,7 @@ class User(db.Model):
     money = db.Column(db.Numeric(precision=4), default=0)
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=0)
-    daily_cooldown = db.Column(db.TIMESTAMP)
+    last_daily = db.Column(db.TIMESTAMP)
+    daily_streak = db.Column(db.Integer)
 
     _guild_user_uniq = db.UniqueConstraint("user_id", "guild_id", name="guild_user")
