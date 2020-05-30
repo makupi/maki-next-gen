@@ -4,7 +4,7 @@ from maki.utils import config
 db = Gino()
 
 # import models so Gino registers them
-import maki.database.models  # isort:skip
+import maki.database.models as models  # isort:skip
 
 
 async def setup():

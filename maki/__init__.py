@@ -3,7 +3,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-import maki.database
+import maki.database as database
 from maki.database.models import Guild
 from maki.utils import config
 

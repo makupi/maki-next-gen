@@ -3,6 +3,7 @@ from collections import Counter
 
 import discord
 from discord.ext import commands
+
 from maki.database.models import Emote
 from maki.utils import create_embed
 
@@ -85,7 +86,7 @@ class Emotes(commands.Cog):
         emotes = await query.order_by(Emote.count.desc()).limit(amount).gino.all()
         embed = await create_embed()
         if len(emotes) == 0:
-            embed.description = f"No emote counter found."
+            embed.description = "No emote counter found."
             if _filter is not None:
                 embed.description = f'No emotes found matching "{_filter}".'
             await ctx.send(embed=embed)
