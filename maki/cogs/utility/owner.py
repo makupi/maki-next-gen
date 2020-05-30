@@ -1,10 +1,9 @@
 import subprocess
 import sys
 
-import discord
-import maki.database as db
 from discord.ext import commands
-from maki.database.models import Guild
+
+import maki.database as db
 from maki.utils import config, create_embed
 
 

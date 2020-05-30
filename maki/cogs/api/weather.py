@@ -1,8 +1,8 @@
 from datetime import datetime
 
 import aiohttp
-import discord
 from discord.ext import commands
+
 from maki.utils import config, create_embed
 
 API = "https://api.openweathermap.org/data/2.5/weather?units=metric"

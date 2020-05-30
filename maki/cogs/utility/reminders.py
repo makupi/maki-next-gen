@@ -206,7 +206,7 @@ class Reminders(commands.Cog):
                 await reminder.delete()
             else:
                 embed.description = (
-                    f"You are not the creator of this reminder. You cannot delete it!"
+                    "You are not the creator of this reminder. You cannot delete it!"
                 )
         await ctx.send(embed=embed)
 

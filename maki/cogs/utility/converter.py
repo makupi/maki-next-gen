@@ -1,12 +1,11 @@
 import re
 import string
 
-import discord
 from discord.ext import commands
-from pint import UnitRegistry
-from pint.errors import DimensionalityError
 
 from maki.utils import create_embed
+from pint import UnitRegistry
+from pint.errors import DimensionalityError
 
 ureg = UnitRegistry()
 Q_ = ureg.Quantity
@@ -59,7 +58,7 @@ def parse_input_parameters(value, unit, dummy, new_unit):
     if new_unit is None:
         if dummy in UNITS:
             new_unit = dummy
-        if dummy is None or unit == 'to':
+        if dummy is None or unit == "to":
             try:
                 _ = float(value)
             except ValueError:
@@ -90,30 +89,36 @@ class Converter(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'{type(self).__name__} Cog ready.')
+        print(f"{type(self).__name__} Cog ready.")
 
     @commands.command()
     async def convert(self, ctx, value=None, unit=None, dummy=None, new_unit=None):
         """: Converts between given units."""
-        embed = await create_embed(title='Conversion Failed')
+        embed = await create_embed(title="Conversion Failed")
         try:
             if value is None:
                 raise InvalidParameters
             value, unit, new_unit = parse_input_parameters(value, unit, dummy, new_unit)
         except UnitUnknown as ex:
-            embed.description = f'Unit `{ex}` unknown. ' \
-                                f'Please check the `units` command for available units.'
+            embed.description = (
+                f"Unit `{ex}` unknown. "
+                f"Please check the `units` command for available units."
+            )
         except InvalidParameters:
-            embed.description = f'Received Invalid Parameters. Please use the following format: ' \
-                                f'\n - `convert VALUE UNIT to NEW_UNIT`\n - `convert 1 km to mi`'
+            embed.description = (
+                "Received Invalid Parameters. Please use the following format: "
+                "\n - `convert VALUE UNIT to NEW_UNIT`\n - `convert 1 km to mi`"
+            )
         else:
             try:
                 new_value = value.to(new_unit)
             except DimensionalityError:
-                embed.description = f'Conversion from `{unit}` to `{new_unit}` not possible.'
+                embed.description = (
+                    f"Conversion from `{unit}` to `{new_unit}` not possible."
+                )
             else:
-                embed.title = ''
-                embed.description = f'{value:.3f} is equal to {new_value:.3f}'
+                embed.title = ""
+                embed.description = f"{value:.3f} is equal to {new_value:.3f}"
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -123,11 +128,13 @@ class Converter(commands.Cog):
         for unit_abr, unit in UNITS.items():
             tmp += f"{unit_abr:4s} - {string.capwords(str(unit))}\n"
         tmp += "```"
-        tmp = tmp.replace('Degree_fahrenheit', 'Fahrenheit')
-        tmp = tmp.replace('Degree_celsius', 'Celsius')
-        tmp = tmp.replace('Nautical_mile', 'Nautical Mile')
+        tmp = tmp.replace("Degree_fahrenheit", "Fahrenheit")
+        tmp = tmp.replace("Degree_celsius", "Celsius")
+        tmp = tmp.replace("Nautical_mile", "Nautical Mile")
 
-        embed = await create_embed(title="Supported Units for Conversion", description=tmp)
+        embed = await create_embed(
+            title="Supported Units for Conversion", description=tmp
+        )
         await ctx.send(embed=embed)
 
 
