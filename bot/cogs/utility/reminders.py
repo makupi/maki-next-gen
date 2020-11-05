@@ -2,6 +2,7 @@ import asyncio
 import re
 from datetime import datetime, timedelta
 
+import discord
 from discord.ext import commands
 
 import bot.database as db
@@ -88,7 +89,7 @@ class Reminders(commands.Cog):
     async def send_reminder(self, reminder):
         embed = await reminder_creation(reminder.reminder)
         _user = await User.get(reminder.user_id)
-        user = self.bot.get_user(_user.user_id)
+        user = await self.bot.fetch_user(_user.user_id)
         if reminder.send_dm:
             msg = await user.send(embed=embed)
         else:
