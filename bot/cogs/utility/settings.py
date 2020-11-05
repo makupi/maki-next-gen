@@ -24,6 +24,10 @@ class Settings(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def prefix(self, ctx, new_prefix: str):
+        """*Change your servers prefix*
+        **Example**: `{prefix}prefix !`
+        **Requires permission**: `MANAGER SERVER`
+        """
         embed = discord.Embed(description="Prefix changed")
         guild = await Guild.get(ctx.guild.id)
         if guild is None:

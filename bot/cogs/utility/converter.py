@@ -3,7 +3,6 @@ import string
 
 from discord.ext import commands
 
-from bot.utils import create_embed
 from pint import UnitRegistry
 from pint.errors import DimensionalityError
 
@@ -94,15 +93,14 @@ class Converter(commands.Cog):
     @commands.command()
     async def convert(self, ctx, value=None, unit=None, dummy=None, new_unit=None):
         """: Converts between given units."""
-        embed = await create_embed(title="Conversion Failed")
+        embed = discord.Embed(title="Conversion Failed")
         try:
             if value is None:
                 raise InvalidParameters
             value, unit, new_unit = parse_input_parameters(value, unit, dummy, new_unit)
         except UnitUnknown as ex:
             embed.description = (
-                f"Unit `{ex}` unknown. "
-                f"Please check the `units` command for available units."
+                f"Unit `{ex}` unknown. " f"Please check the `units` command for available units."
             )
         except InvalidParameters:
             embed.description = (
@@ -113,9 +111,7 @@ class Converter(commands.Cog):
             try:
                 new_value = value.to(new_unit)
             except DimensionalityError:
-                embed.description = (
-                    f"Conversion from `{unit}` to `{new_unit}` not possible."
-                )
+                embed.description = f"Conversion from `{unit}` to `{new_unit}` not possible."
             else:
                 embed.title = ""
                 embed.description = f"{value:.3f} is equal to {new_value:.3f}"
@@ -132,9 +128,7 @@ class Converter(commands.Cog):
         tmp = tmp.replace("Degree_celsius", "Celsius")
         tmp = tmp.replace("Nautical_mile", "Nautical Mile")
 
-        embed = await create_embed(
-            title="Supported Units for Conversion", description=tmp
-        )
+        embed = discord.Embed(title="Supported Units for Conversion", description=tmp)
         await ctx.send(embed=embed)
 
 

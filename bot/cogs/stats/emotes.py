@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 
 from bot.database.models import Emote
-from bot.utils import create_embed
 
 EMOTE_REGEX = re.compile(r":[A-Za-z0-9]+:")
 
@@ -18,9 +17,7 @@ def parse_emotes(message: str) -> Counter:
 
 async def query_emote(guild_id: int, name: str) -> Emote:
     return (
-        await Emote.query.where(Emote.guild_id == guild_id)
-        .where(Emote.name == name)
-        .gino.first()
+        await Emote.query.where(Emote.guild_id == guild_id).where(Emote.name == name).gino.first()
     )
 
 
@@ -59,9 +56,7 @@ class Emotes(commands.Cog):
         count :emote:
         returns the counter for one or more emotes."""
         emotes = parse_emotes(emote)
-        embed = await create_embed(
-            description="Current counters for the requested emotes"
-        )
+        embed = discord.Embed(description="Current counters for the requested emotes")
         for name in emotes.keys():
             e = await query_emote(ctx.guild.id, name)
             count = 0
@@ -84,7 +79,7 @@ class Emotes(commands.Cog):
         if _filter is not None:
             query = query.where(Emote.name.ilike(f"%{_filter}%"))
         emotes = await query.order_by(Emote.count.desc()).limit(amount).gino.all()
-        embed = await create_embed()
+        embed = discord.Embed()
         if len(emotes) == 0:
             embed.description = "No emote counter found."
             if _filter is not None:
@@ -94,9 +89,7 @@ class Emotes(commands.Cog):
         if _filter is not None:
             embed.description += f' filtered by "{_filter}"'
         for index, emote in enumerate(emotes):
-            embed.add_field(
-                name=f"{index+1}. {emote.name}", value=emote.count, inline=False
-            )
+            embed.add_field(name=f"{index+1}. {emote.name}", value=emote.count, inline=False)
         await ctx.send(embed=embed)
 
 

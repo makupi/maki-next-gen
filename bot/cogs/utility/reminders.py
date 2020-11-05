@@ -7,7 +7,7 @@ from discord.ext import commands
 import bot.database as db
 from gino import GinoException
 from bot.database.models import Reminder, User
-from bot.utils import create_embed, dm_test
+from bot.utils import dm_test
 
 UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
 
@@ -52,7 +52,7 @@ async def store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm
 
 
 async def reminder_creation(reminder, delta=None):
-    embed = await create_embed()
+    embed = discord.Embed()
     if delta is None:
         embed.add_field(name="Reminding you about", value=reminder)
     else:
@@ -128,15 +128,13 @@ class Reminders(commands.Cog):
     async def remindme(self, ctx, _time, *reminder: str):
         """: Reminder in the same channel after time expired
 
-                Format: .remindme 1h30m finish this essay
+        Format: .remindme 1h30m finish this essay
 
-                Ping the author after the time has expired with the given message
-                <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
-                        e.g. 1w2d5h10m45s
-                """
-        delta, reminder, user_id, channel_id, guild_id = parse_reminder(
-            ctx, _time, reminder
-        )
+        Ping the author after the time has expired with the given message
+        <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
+                e.g. 1w2d5h10m45s
+        """
+        delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
         await store_reminder(delta, reminder, user_id, channel_id, guild_id)
         embed = await reminder_creation(reminder, delta=delta)
         msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
@@ -147,23 +145,19 @@ class Reminders(commands.Cog):
     async def dmme(self, ctx, _time, *reminder: str):
         """: Reminder via direct message after time expired
 
-                Format: .dmme 1h30m finish this essay
+        Format: .dmme 1h30m finish this essay
 
-                DM the author after the time has expired with the given message
-                <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
-                        e.g. 1w2d5h10m45s
-                """
+        DM the author after the time has expired with the given message
+        <time> - supports weeks(w) days(d) hours(h) minutes(m) and seconds(s)
+                e.g. 1w2d5h10m45s
+        """
         if await dm_test(ctx.author):
-            delta, reminder, user_id, channel_id, guild_id = parse_reminder(
-                ctx, _time, reminder
-            )
-            await store_reminder(
-                delta, reminder, user_id, channel_id, guild_id, send_dm=True
-            )
+            delta, reminder, user_id, channel_id, guild_id = parse_reminder(ctx, _time, reminder)
+            await store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm=True)
             embed = await reminder_creation(reminder, delta=delta)
             msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
         else:
-            embed = await create_embed()
+            embed = discord.Embed()
             embed.description = "It seems like I'm not allowed to send you a direct message. \
                                 Please follow the steps below to enable direct messages."
             msg = await ctx.send(embed=embed)
@@ -174,7 +168,7 @@ class Reminders(commands.Cog):
     async def reminders(self, ctx):
         user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
         reminders = await Reminder.query.where(Reminder.user_id == user.id).gino.all()
-        embed = await create_embed()
+        embed = discord.Embed()
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         if len(reminders) == 0:
             embed.description = "You don't have any active reminders right now!"
@@ -194,15 +188,13 @@ class Reminders(commands.Cog):
     async def cancel_reminder(self, ctx, number: int):
         user = await db.query_user(user_id=ctx.author.id, guild_id=ctx.guild.id)
         reminder = await Reminder.get(number)
-        embed = await create_embed()
+        embed = discord.Embed()
         if reminder is None:
             embed.description = f"Reminder **#{number}** not found!"
         else:
             due = reminder.due_time - datetime.now().replace(microsecond=0)
             if user.id == reminder.user_id:
-                embed.description = (
-                    f"Cancelled reminder **#{reminder.id}** with {due} left."
-                )
+                embed.description = f"Cancelled reminder **#{reminder.id}** with {due} left."
                 await reminder.delete()
             else:
                 embed.description = (

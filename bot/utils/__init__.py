@@ -1,7 +1,6 @@
 import discord
 
 from .config import Config
-from .embeds import create_embed
 
 config = Config("config.json")
 
@@ -16,4 +15,4 @@ async def dm_test(user):
     return True
 
 
-__all__ = ["config", "create_embed", "dm_test"]
+__all__ = ["config", "dm_test"]

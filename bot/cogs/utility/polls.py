@@ -9,7 +9,6 @@ import bot.database as db
 from gino import GinoException
 from bot.cogs.utility.reminders import convert_to_delta
 from bot.database.models import Poll
-from bot.utils import create_embed
 
 EMOTE_BOX = "⃣"
 
@@ -46,9 +45,7 @@ class Polls(commands.Cog):
         await self.bot.wait_until_ready()
         while True:
             try:
-                due_polls = await Poll.query.where(
-                    Poll.due_time < datetime.now()
-                ).gino.all()
+                due_polls = await Poll.query.where(Poll.due_time < datetime.now()).gino.all()
             except GinoException as ex:
                 print(f"GinoException during Reminder.query {ex}")
             else:
@@ -64,15 +61,14 @@ class Polls(commands.Cog):
         for embed in msg.embeds:
             title = embed.title
 
-        embed = await create_embed(title=title)
+        embed = discord.Embed(title=title)
         votes = dict()
         for reaction in msg.reactions:
             if reaction.emoji in EMOTE_LIST:
                 option = poll.options[EMOTE_LIST.index(reaction.emoji)]
                 votes[option] = reaction.count - 1
         sorted_votes = {
-            k: v
-            for k, v in sorted(votes.items(), key=lambda item: item[1], reverse=True)
+            k: v for k, v in sorted(votes.items(), key=lambda item: item[1], reverse=True)
         }
         desc = "📊 **Results**\n"
         for k, v in sorted_votes.items():
@@ -91,9 +87,7 @@ class Polls(commands.Cog):
             options_dict[emote] = option
         embed.description = desc
         due_time = datetime.now().replace(microsecond=0) + parse_timedelta(time)
-        embed.timestamp = datetime.utcnow().replace(microsecond=0) + parse_timedelta(
-            time
-        )
+        embed.timestamp = datetime.utcnow().replace(microsecond=0) + parse_timedelta(time)
         embed.set_footer(text="Due ")
         msg = await ctx.send(embed=embed)
         for emote in options_dict.keys():

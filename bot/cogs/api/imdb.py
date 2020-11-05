@@ -1,7 +1,8 @@
 import aiohttp
+import discord
 from discord.ext import commands
 
-from bot.utils import config, create_embed
+from bot.utils import config
 
 API = "http://www.omdbapi.com/"
 
@@ -27,7 +28,7 @@ class IMDb(commands.Cog):
     async def movie(self, ctx, *, movie: str):
         url = f"{API}?s={movie}"
         data = await self._fetch_json(url)
-        embed = await create_embed()
+        embed = discord.Embed()
         if data is None:
             embed.description = "No matching movie found, please try again!"
             await ctx.send(embed=embed)
@@ -48,18 +49,12 @@ class IMDb(commands.Cog):
                 await msg.add_reaction(emote)
 
             def check(r, u):
-                return (
-                    r.message.id == msg.id
-                    and u == ctx.message.author
-                    and r.emoji in movies
-                )
+                return r.message.id == msg.id and u == ctx.message.author and r.emoji in movies
 
-            reaction, user = await self.bot.wait_for(
-                "reaction_add", check=check, timeout=360
-            )
+            reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=360)
             movie_id = movies[reaction.emoji]
             await msg.clear_reactions()
-            embed = await create_embed()
+            embed = discord.Embed()
         elif len(search) == 1:
             movie_id = search[0].get("imdbID")
         if movie_id:

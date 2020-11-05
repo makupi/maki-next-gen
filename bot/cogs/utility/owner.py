@@ -1,10 +1,11 @@
 import subprocess
 import sys
 
+import discord
 from discord.ext import commands
 
 import bot.database as db
-from bot.utils import config, create_embed
+from bot.utils import config
 
 
 def fix_cog_path(cog):
@@ -31,7 +32,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         old_prefix = config.prefix
         config.prefix = new_prefix
         config.store()
-        embed = await create_embed(title="Changing default prefix")
+        embed = discord.Embed(title="Changing default prefix")
         embed.add_field(name="From", value=old_prefix)
         embed.add_field(name="To", value=new_prefix)
         await ctx.send(embed=embed)
@@ -39,14 +40,14 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     async def shutdown(self, ctx):
         await db.shutdown()
-        embed = await create_embed(title="Shutting down..")
+        embed = discord.Embed(title="Shutting down..")
         await ctx.send(embed=embed)
 
         sys.exit()
 
     @commands.command()
     async def load(self, ctx, cog: str):
-        embed = await create_embed(title=f"Load Extension {cog}")
+        embed = discord.Embed(title=f"Load Extension {cog}")
         try:
             self.bot.load_extension(fix_cog_path(cog))
         except (commands.ExtensionAlreadyLoaded, commands.ExtensionNotFound) as ex:
@@ -57,7 +58,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.command()
     async def unload(self, ctx, cog: str):
-        embed = await create_embed(title=f"Unload Extension {cog}")
+        embed = discord.Embed(title=f"Unload Extension {cog}")
         try:
             self.bot.unload_extension(fix_cog_path(cog))
         except commands.ExtensionNotLoaded as ex:
@@ -68,7 +69,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.command()
     async def reload(self, ctx, cog: str):
-        embed = await create_embed(title=f"Reload Extension {cog}")
+        embed = discord.Embed(title=f"Reload Extension {cog}")
         try:
             self.bot.reload_extension(fix_cog_path(cog))
         except (commands.ExtensionNotLoaded, commands.ExtensionNotFound) as ex:
@@ -82,12 +83,12 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         msg = ""
         for cog in self.bot.cogs:
             msg += f"- {cog}\n"
-        embed = await create_embed(title="Loaded Extensions", description=msg)
+        embed = discord.Embed(title="Loaded Extensions", description=msg)
         await ctx.send(embed=embed)
 
     @commands.command()
     async def exec(self, ctx, *command: str):
-        embed = await create_embed(title=" ".join(command))
+        embed = discord.Embed(title=" ".join(command))
         try:
             with subprocess.Popen(
                 [*list(command)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -109,9 +110,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             for member in guild.members:
                 if not member.bot:
                     user = await db.query_user(user_id=member.id, guild_id=guild.id)
-                    print(
-                        f"guild <{guild.id}> creating user {member.id} with id {user.id}"
-                    )
+                    print(f"guild <{guild.id}> creating user {member.id} with id {user.id}")
 
     @commands.command()
     async def test(self, ctx):
