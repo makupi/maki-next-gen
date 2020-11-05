@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pymongo = "*"
+bumpversion = "*"
 
 [packages]
 discord-py = "*"
