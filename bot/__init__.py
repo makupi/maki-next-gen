@@ -23,7 +23,11 @@ async def get_prefix(_bot, message):
     return commands.when_mentioned_or(prefix)(_bot, message)
 
 
-bot = commands.AutoShardedBot(command_prefix=get_prefix)
+intents = discord.Intents.default()
+# Privileged intents, might not be needed later.
+intents.members = True
+intents.presences = True
+bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents)
 bot.version = __version__
 bot.active_commands = 0
 bot.total_commands = 0
