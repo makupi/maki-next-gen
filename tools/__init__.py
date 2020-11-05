@@ -1,7 +1,7 @@
 import asyncio
 
-import maki.database as db
-from maki.database.models import Emote, Guild, Reminder
+import bot.database as db
+from bot.database.models import Emote, Guild, Reminder
 
 from .database_transfer import from_emotes_data, from_reminder_data, guild_config_transfer, setup
 

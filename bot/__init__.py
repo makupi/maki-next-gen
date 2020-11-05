@@ -3,9 +3,9 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-import maki.database as database
-from maki.database.models import Guild
-from maki.utils import config
+import bot.database as database
+from bot.database.models import Guild
+from bot.utils import config
 
 __version__ = "0.1.4"
 
@@ -64,7 +64,7 @@ async def after_invoke(ctx):
 
 
 def extensions():
-    files = Path("maki", "cogs").rglob("*.py")
+    files = Path("bot", "cogs").rglob("*.py")
     for file in files:
         yield file.as_posix()[:-3].replace("/", ".")
 

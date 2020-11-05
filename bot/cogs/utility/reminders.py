@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 
 from discord.ext import commands
 
-import maki.database as db
+import bot.database as db
 from gino import GinoException
-from maki.database.models import Reminder, User
-from maki.utils import create_embed, dm_test
+from bot.database.models import Reminder, User
+from bot.utils import create_embed, dm_test
 
 UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
 

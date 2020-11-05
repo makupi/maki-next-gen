@@ -1,10 +1,10 @@
 from gino import Gino
-from maki.utils import config
+from bot.utils import config
 
 db = Gino()
 
 # import models so Gino registers them
-import maki.database.models as models  # isort:skip
+import bot.database.models as models  # isort:skip
 
 
 async def setup():

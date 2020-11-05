@@ -4,8 +4,8 @@ from collections import Counter
 import discord
 from discord.ext import commands
 
-from maki.database.models import Emote
-from maki.utils import create_embed
+from bot.database.models import Emote
+from bot.utils import create_embed
 
 EMOTE_REGEX = re.compile(r":[A-Za-z0-9]+:")
 

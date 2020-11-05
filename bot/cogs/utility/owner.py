@@ -3,15 +3,15 @@ import sys
 
 from discord.ext import commands
 
-import maki.database as db
-from maki.utils import config, create_embed
+import bot.database as db
+from bot.utils import config, create_embed
 
 
 def fix_cog_path(cog):
-    if not cog.startswith("maki.cogs."):
+    if not cog.startswith("bot.cogs."):
         if not cog.startswith("cogs."):
-            return "maki.cogs." + cog
-        return "maki." + cog
+            return "bot.cogs." + cog
+        return "bot." + cog
     return cog
 
 

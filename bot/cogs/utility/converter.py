@@ -3,7 +3,7 @@ import string
 
 from discord.ext import commands
 
-from maki.utils import create_embed
+from bot.utils import create_embed
 from pint import UnitRegistry
 from pint.errors import DimensionalityError
 

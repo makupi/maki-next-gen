@@ -1,3 +1,3 @@
-import maki
+import bot
 
-maki.run()
+bot.run()

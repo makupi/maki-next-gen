@@ -1,7 +1,7 @@
 import discord
-import maki.database as db
+import bot.database as db
 from discord.ext import commands
-from maki.database.models import Guild
+from bot.database.models import Guild
 
 
 class Settings(commands.Cog):

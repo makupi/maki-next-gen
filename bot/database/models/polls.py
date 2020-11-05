@@ -1,4 +1,4 @@
-from maki.database import db
+from bot.database import db
 
 
 class Poll(db.Model):

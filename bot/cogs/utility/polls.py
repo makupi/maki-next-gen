@@ -5,11 +5,11 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-import maki.database as db
+import bot.database as db
 from gino import GinoException
-from maki.cogs.utility.reminders import convert_to_delta
-from maki.database.models import Poll
-from maki.utils import create_embed
+from bot.cogs.utility.reminders import convert_to_delta
+from bot.database.models import Poll
+from bot.utils import create_embed
 
 EMOTE_BOX = "⃣"
 

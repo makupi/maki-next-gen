@@ -1,7 +1,7 @@
 import aiohttp
 from discord.ext import commands
 
-from maki.utils import config, create_embed
+from bot.utils import config, create_embed
 
 API = "http://www.omdbapi.com/"
 
