@@ -2,8 +2,10 @@ import asyncio
 import re
 from datetime import datetime, timedelta
 
+import aiohttp
 import discord
 from discord.ext import commands
+import webpreview
 
 import bot.database as db
 from gino import GinoException
@@ -52,6 +54,23 @@ async def store_reminder(delta, reminder, user_id, channel_id, guild_id, send_dm
     )
 
 
+async def parse_url_image(url: str):
+    try:
+        content = None
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.content_type == "text/html":
+                    content = await response.content.read()
+        og = webpreview.OpenGraph(
+            url, properties=["og:image"], content=content, parser="html.parser"
+        )
+        if og:
+            url = og.image
+    except Exception as ex:
+        print(f"reminder_creation: Fetching of image failed. {ex}")
+    return url
+
+
 async def reminder_creation(reminder, delta=None):
     embed = discord.Embed()
     if delta is None:
@@ -60,7 +79,8 @@ async def reminder_creation(reminder, delta=None):
         embed.add_field(name=f"Reminder due in {delta}", value=reminder)
     url = re.search(r"(?P<url>https?://[^\s]+)", reminder)
     if url:
-        embed.set_image(url=url.group("url"))
+        url = await parse_url_image(url.group("url"))
+        embed.set_image(url=url)
     embed.set_footer(text=f"React with {DELETE_EMOTE}️ to delete")
     return embed
 
