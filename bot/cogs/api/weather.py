@@ -25,6 +25,10 @@ class Weather(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.api_key = config.owm_key
+        if self.api_key is None:
+            raise ValueError(
+                "Missing OpenWeatherMap key in config.json. You can request one via https://openweathermap.org/api"
+            )
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -56,7 +60,7 @@ class Weather(commands.Cog):
         w = data.get("weather")[0]
         desc = w.get("description")
         icon_url = get_icon_url(w.get("icon"))
-        main = data.get("main")
+        main = data.get("main", {})
         temp = main.get("temp")
         feels_like = main.get("feels_like")
         humidity = main.get("humidity")
