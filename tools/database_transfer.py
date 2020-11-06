@@ -1,6 +1,6 @@
 import json
 
-from maki.database import db
+from bot.database import db
 from pymongo import MongoClient
 
 with open("tools/transfer.json") as file:

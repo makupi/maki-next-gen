@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pymongo = "*"
+bumpversion = "*"
 
 [packages]
 discord-py = "*"
@@ -12,6 +13,7 @@ gino = "*"
 alembic = "*"
 pint = "*"
 psycopg2 = "*"
+webpreview = "*"
 
 [requires]
 python_version = "3.8"
