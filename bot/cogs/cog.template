@@ -8,7 +8,7 @@ class Name(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'{type(self).__name__} Cog ready.')
+        print(f"{type(self).__name__} Cog ready.")
 
 
 def setup(bot):
