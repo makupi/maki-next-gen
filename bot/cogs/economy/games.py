@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from bot.games.slots import Slots
+from bot import games
 
 
 class Games(commands.Cog):
@@ -18,7 +18,18 @@ class Games(commands.Cog):
         **Usage**: `{prefix}slots [amount: default 10]`
         **Example**: `{prefix}slots 50`
         """
-        game = Slots(ctx, amount)
+        game = games.Slots(ctx, amount)
+        await game.play()
+
+    @commands.command()
+    async def coinflip(self, ctx, choice: str, amount: float = 10.0):
+        """*Flip a coin!*
+
+        **Usage**: `{prefix}coinflip <choice> [amount: default 10]`
+        <choice>: either `head` or `tail` or simply `h` or `t`
+        **Example**: `{prefix}coinflip h 25`
+        """
+        game = games.CoinFlip(choice, ctx, amount)
         await game.play()
 
 
