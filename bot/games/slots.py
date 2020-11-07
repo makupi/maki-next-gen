@@ -2,7 +2,10 @@ import collections
 import random
 from typing import List, Tuple
 
+import discord
+
 from .game import Game
+from bot.utils import format_currency
 
 ODDS = {
     "🍒": 25,
@@ -55,10 +58,18 @@ class Slots(Game):
         slots = get_slots()
         combo, odds = calculate_win(slots)
         win = self.amount * odds
+        embed = discord.Embed(
+            description=f"\n| ------------ |\n| {' '.join(slots)} |\n| ------------ |\n"
+        )
         if odds:
-            await self.ctx.send(f"{' '.join(slots)}\nNice! You bet {self.amount} and won {win}!")
+            embed.description += (
+                f"Nice! You bet {format_currency(self.amount)} and won {format_currency(win)}!"
+            )
+            embed.colour = discord.Colour.green()
         else:
-            await self.ctx.send(f"{' '.join(slots)}\nOh no. You lost. Good luck next time!")
+            embed.description += f"Oh no. You lost. Good luck next time!"
+            embed.colour = discord.Colour.red()
+        await self.ctx.send(embed=embed)
         return win
 
     @staticmethod

@@ -12,7 +12,7 @@ class Games(commands.Cog):
         print(f"{type(self).__name__} Cog ready.")
 
     @commands.command()
-    async def slots(self, ctx, amount: int = 10):
+    async def slots(self, ctx, amount: float = 10.0):
         """*Gamble with some slots!*
 
         **Usage**: `{prefix}slots [amount: default 10]`
