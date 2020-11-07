@@ -2,7 +2,7 @@ import collections
 import random
 from typing import List, Tuple
 
-from discord.ext import commands
+from .game import Game
 
 ODDS = {
     "🍒": 25,
@@ -50,21 +50,19 @@ def calculate_win(slots: List[str]) -> Tuple[List[str], float]:
     return slots, 0
 
 
-class Slots:
-    def __init__(self, ctx: commands.Context, amount: int):
-        self.ctx = ctx
-        self.amount = amount
-
-    async def play(self):
+class Slots(Game):
+    async def game(self) -> float:
         slots = get_slots()
         combo, odds = calculate_win(slots)
+        win = self.amount * odds
         if odds:
-            await self.ctx.send(f"{' '.join(slots)}\nNice! You won {self.amount * odds}!")
+            await self.ctx.send(f"{' '.join(slots)}\nNice! You bet {self.amount} and won {win}!")
         else:
             await self.ctx.send(f"{' '.join(slots)}\nOh no. You lost. Good luck next time!")
+        return win
 
     @staticmethod
-    def odds_info():
+    def info():
         info = "```py\n"
         for emote, odds in ODDS.items():
             if emote not in THREE_REQUIRED:
