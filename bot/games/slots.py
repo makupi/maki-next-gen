@@ -62,3 +62,12 @@ class Slots:
             await self.ctx.send(f"{' '.join(slots)}\nNice! You won {self.amount * odds}!")
         else:
             await self.ctx.send(f"{' '.join(slots)}\nOh no. You lost. Good luck next time!")
+
+    @staticmethod
+    def odds_info():
+        info = "```py\n"
+        for emote, odds in ODDS.items():
+            if emote not in THREE_REQUIRED:
+                info += f"{emote*2:<5}: {get_odds(emote, only_two=True)}\n"
+            info += f"{emote * 3:<5}: {get_odds(emote)}\n"
+        return info + "```"
