@@ -11,4 +11,4 @@ jobs:
         name: maki-next-gen
         username: makupi
         password: ${{ secrets.PAT }}
-        registry: ghcr.io
+        registry: ghcr.io/makupi
