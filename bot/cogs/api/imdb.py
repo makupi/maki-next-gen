@@ -11,6 +11,10 @@ class IMDb(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.api_key = config.omdb_key
+        if self.api_key is None:
+            raise ValueError(
+                "Missing omdb key in config.json. You can request one via http://www.omdbapi.com/apikey.aspx"
+            )
 
     @commands.Cog.listener()
     async def on_ready(self):

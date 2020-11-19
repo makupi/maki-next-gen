@@ -1,6 +1,7 @@
 import discord
 
 from .config import Config
+from .constants import CURRENCY_SYMBOL
 
 config = Config("config.json")
 
@@ -15,4 +16,8 @@ async def dm_test(user):
     return True
 
 
-__all__ = ["config", "dm_test"]
+def format_currency(amount: float) -> str:
+    return f"{amount:g} {CURRENCY_SYMBOL}"
+
+
+__all__ = ["config", "dm_test", "format_currency"]
