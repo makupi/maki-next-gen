@@ -8,7 +8,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: myDocker/repository
+        name: maki-next-gen
         username: makupi
         password: ${{ secrets.PAT }}
-        registry: ghcr.io/makupi/maki-next-gen
+        registry: ghcr.io
