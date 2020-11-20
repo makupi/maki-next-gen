@@ -198,3 +198,5 @@ dmypy.json
 config.json
 
 tools/transfer.json
+
+.env
