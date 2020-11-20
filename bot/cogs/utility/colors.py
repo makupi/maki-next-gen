@@ -29,6 +29,12 @@ class Colors(commands.Cog):
         except aiohttp.ClientError:
             return None
 
+    async def send_api_image(self, ctx: commands.Context, endpoint: str, data: dict):
+        image = await self._fetch_image(endpoint, data)
+        if image is not None:
+            return await ctx.send(file=image)
+        await ctx.send(f"Something went wrong. Please try again.")
+
     @commands.command()
     async def color(self, ctx: commands.Context, color: str):
         """*Display a single color*
@@ -36,8 +42,7 @@ class Colors(commands.Cog):
         **Usage**: {prefix}color <color-code>
         **Example**: {prefix}color #FF80AA
         """
-        image = await self._fetch_image("/square", {"color": color})
-        await ctx.send(file=image)
+        await self.send_api_image(ctx, "/square", {"color": color})
 
     @commands.command()
     async def palette(self, ctx: commands.Context, *, colors: str):
@@ -48,11 +53,7 @@ class Colors(commands.Cog):
         **Example**: {prefix}palette #112233 #445566 #778899
         """
         colors = colors.split(" ")
-        image = await self._fetch_image("/palette", {"colors": colors, "label": False})
-        if image is not None:
-            return await ctx.send(file=image)
-        await ctx.send(f"Something went wrong. Please try again.")
-
+        await self.send_api_image(ctx, "/palette", {"colors": colors, "label": False})
 
 
 def setup(bot):
