@@ -3,6 +3,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import bot.database as database

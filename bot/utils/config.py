@@ -19,6 +19,7 @@ class Config:
         self.database = os.getenv("DB_DSN", "postgresql://postgres:postgres@localhost/postgres")
         self.owm_key = os.getenv("OWM_KEY")
         self.omdb_key = os.getenv("OMDB_KEY")
+        self.maki_api = os.getenv("MAKI_API", "https://api.makubob.app/api/v1/color")
         # self.prefix = self.config.get("prefix", default_config.get("prefix"))
         # self.token = self.config.get("token", default_config.get("token"))
         # self.database = self.config.get("database", default_config.get("database"))

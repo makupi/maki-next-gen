@@ -5,12 +5,13 @@ from typing import Optional
 import aiohttp
 import discord
 from discord.ext import commands
+from bot.utils import config
 
 
 class Colors(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.base_api = "https://api.makubob.app/api/v1/color"
+        self.base_api = config.maki_api
 
     @commands.Cog.listener()
     async def on_ready(self):
