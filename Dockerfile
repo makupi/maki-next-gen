@@ -8,5 +8,10 @@ RUN mkdir /code
 WORKDIR /code
 
 RUN pip install pipenv
-COPY bot /code/
+COPY Pipfile* /code/
 RUN pipenv sync
+
+COPY alembic /code/
+COPY alembic.ini /code/
+
+COPY bot /code/

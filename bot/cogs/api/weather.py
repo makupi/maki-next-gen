@@ -25,7 +25,7 @@ class Weather(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.api_key = config.owm_key
-        if self.api_key is None:
+        if not self.api_key:
             raise ValueError(
                 "Missing OpenWeatherMap key in config.json. You can request one via https://openweathermap.org/api"
             )

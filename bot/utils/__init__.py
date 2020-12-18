@@ -3,7 +3,7 @@ import discord
 from .config import Config
 from .constants import CURRENCY_SYMBOL
 
-config = Config("config.json")
+config = Config()
 
 
 async def dm_test(user):
